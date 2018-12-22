@@ -19,13 +19,13 @@ class VAE(nn.Module):
         nb_blocks = int(np.log(w)/np.log(2)) - 3
         nf = ndf
         layers = [
-            nn.Conv2d(nc, nf, 4, 2, 1, bias=False),
+            nn.Conv2d(nc, nf, 4, 2, 1, bias=True),
             nn.LeakyReLU(0.2, inplace=True),
         ]
         for _ in range(nb_blocks):
             layers.extend([
-                nn.Conv2d(nf, nf * 2, 4, 2, 1, bias=False),
-                nn.BatchNorm2d(nf * 2),
+                nn.Conv2d(nf, nf * 2, 4, 2, 1, bias=True),
+                #nn.BatchNorm2d(nf * 2),
                 nn.LeakyReLU(0.2, inplace=True),
             ])
             nf = nf * 2
@@ -43,8 +43,8 @@ class VAE(nn.Module):
         layers = []
         for _ in range(nb_blocks):
             layers.extend([
-                nn.ConvTranspose2d(nf, nf // 2, 4, 2, 1, bias=False),
-                nn.BatchNorm2d(nf // 2),
+                nn.ConvTranspose2d(nf, nf // 2, 4, 2, 1, bias=True),
+                #nn.BatchNorm2d(nf // 2),
                 nn.ReLU(True),
             ])
             nf = nf // 2
