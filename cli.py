@@ -45,7 +45,7 @@ def train(*,
         shuffle=True,
         num_workers=num_workers,
     )
-    act = 'sigmoid' if nc == 1 else 'tanh'
+    act = 'sigmoid' 
     if resume:
         net = torch.load('{}/net.th'.format(folder))
     else:
