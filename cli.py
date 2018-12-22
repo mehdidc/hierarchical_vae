@@ -21,6 +21,7 @@ def train(*,
           device='cpu',
           batch_size=64,
           nz=100,
+          lr=0.001,
           parent_model=None,
           freeze_parent=False,
           num_workers=1,
@@ -30,7 +31,6 @@ def train(*,
         os.makedirs(folder)
     except Exception:
         pass
-    lr = 0.0001
     nb_epochs = 3000
     dataset = load_dataset(dataset, split='train')
     if patch_size is not None:
@@ -85,6 +85,7 @@ def train(*,
 def train_hierarchical(*,
                        batch_size=64,
                        dataset='mnist',
+                       lr=0.001,
                        scale=8, nz=100,
                        use_parent=True,
                        freeze_parent=True,
@@ -112,7 +113,8 @@ def train_hierarchical(*,
         nb_draw_layers=nb_draw_layers,
         device=device,
         resume=resume,
-        log_interval=log_interval
+        log_interval=log_interval,
+        lr=lr,
     )
     if use_parent:
         params.update(dict(
