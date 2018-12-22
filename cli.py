@@ -70,12 +70,15 @@ def train(*,
                 print(f'Epoch: {epoch:05d}/{nb_epochs:05d} iter: {niter:05d} loss: {loss.item()}')
             if niter % 100 == 0:
                 Xsamples = net.sample(nb_examples=100)
-                x = 0.5 * (X + 1) if act == 'tanh' else X
-                xrecs = 0.5 * (Xrec + 1) if act == 'tanh' else Xrec
-                xsamples = 0.5 * (Xsamples + 1) if act == 'tanh' else Xsamples
-                imsave(f'{folder}/real_samples.png', grid_of_images_default(x))
-                imsave(f'{folder}/rec_samples.png', grid_of_images_default(xrecs))
-                imsave(f'{folder}/fake_samples.png', grid_of_images_default(xsamples))
+                X = 0.5 * (X + 1) if act == 'tanh' else X
+                Xrecs = 0.5 * (Xrec + 1) if act == 'tanh' else Xrec
+                Xsamples = 0.5 * (Xsamples + 1) if act == 'tanh' else Xsamples
+                X = X.detach().numpy()
+                Xrecs = Xrecs.detach().numpy()
+                Xsamples = Xsamples.detach().numpy()
+                imsave(f'{folder}/real_samples.png', grid_of_images_default(X))
+                imsave(f'{folder}/rec_samples.png', grid_of_images_default(Xrecs))
+                imsave(f'{folder}/fake_samples.png', grid_of_images_default(Xsamples))
                 torch.save(net, '{}/net.th'.format(folder))
             niter += 1
 
