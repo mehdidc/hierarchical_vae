@@ -59,7 +59,7 @@ class VAE(nn.Module):
 
     def parameters(self):
         args = (self.encoder.parameters(), self.decoder.parameters())
-        if not self.freeze_parent:
+        if self.parent:
             args += (self.parent.parameters(),)
         return chain(*args)
     
