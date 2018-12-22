@@ -1,3 +1,4 @@
+from itertools import chain
 import numpy as np
 import torch
 import torch.nn as nn
@@ -55,6 +56,9 @@ class VAE(nn.Module):
         self.nb_draw_layers = nb_draw_layers 
         self.encoder.apply(weights_init)
         self.decoder.apply(weights_init)
+
+    def parameters(self):
+        return chain(self.encoder.parameters(), self.decoder.parameters())
 
     def forward(self, input):
         x = self.encoder(input)
