@@ -1,15 +1,10 @@
 import os
 from clize import run
-from functools import partial
 import shutil
-from skimage.io import imsave
 
 import torch
-from torch.autograd import Variable
 import torch.optim as optim
 import torchvision.utils as vutils
-
-from viz import grid_of_images_default
 
 from model import VAE
 from model import loss_function
@@ -35,7 +30,7 @@ def train(*,
         os.makedirs(folder)
     except Exception:
         pass
-    lr = 0.0002
+    lr = 0.0001
     nb_epochs = 3000
     dataset = load_dataset(dataset, split='train')
     if patch_size is not None:
@@ -62,17 +57,13 @@ def train(*,
         net = VAE(latent_size=nz, nc=nc, w=patch_size,
                   act=act, ndf=nb_filters, parent=parent)
     opt = optim.Adam(net.parameters(), lr=lr, betas=(0.5, 0.999))
-    input = torch.FloatTensor(batch_size, nc, w, h)
-    input = input.to(device)
     net = net.to(device)
     niter = 0
     for epoch in range(nb_epochs):
         for i, (X, _), in enumerate(dataloader):
             net.zero_grad()
-            batch_size = X.size(0)
             X = X.to(device)
-            input.resize_as_(X).copy_(X)
-            Xrec, mu, logvar = net(input)
+            Xrec, mu, logvar = net(X)
             loss = loss_function(X, Xrec, mu, logvar)
             loss.backward()
             opt.step()

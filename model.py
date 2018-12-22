@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.nn.init import xavier_uniform
 
 
 class VAE(nn.Module):
@@ -15,7 +14,6 @@ class VAE(nn.Module):
         self.latent_size = latent_size
         self.act = act
         self.ndf = ndf
-        self.round = round
         self.parent = parent
 
         nb_blocks = int(np.log(w)/np.log(2)) - 3
@@ -27,7 +25,7 @@ class VAE(nn.Module):
         for _ in range(nb_blocks):
             layers.extend([
                 nn.Conv2d(nf, nf * 2, 4, 2, 1, bias=False),
-                #nn.BatchNorm2d(nf * 2),
+                nn.BatchNorm2d(nf * 2),
                 nn.LeakyReLU(0.2, inplace=True),
             ])
             nf = nf * 2
@@ -46,7 +44,7 @@ class VAE(nn.Module):
         for _ in range(nb_blocks):
             layers.extend([
                 nn.ConvTranspose2d(nf, nf // 2, 4, 2, 1, bias=False),
-                #nn.BatchNorm2d(nf // 2),
+                nn.BatchNorm2d(nf // 2),
                 nn.ReLU(True),
             ])
             nf = nf // 2
@@ -54,8 +52,7 @@ class VAE(nn.Module):
             nn.ConvTranspose2d(nf,  nc, 4, 2, 1, bias=False)
         )
         self.decoder = nn.Sequential(*layers)
-        self.nb_draw_layers = nb_draw_layers
-        
+        self.nb_draw_layers = nb_draw_layers 
         self.encoder.apply(weights_init)
         self.decoder.apply(weights_init)
 
@@ -101,6 +98,10 @@ class VAE(nn.Module):
             x = self.post_latent(h)
             x = x.view(pre_latent_size)
             xrec = self.decoder(x)
+            if self.act == 'sigmoid':
+                xrec = nn.Sigmoid()(xrec)
+            elif self.act == 'tanh':
+                xrec = nn.Tanh()(xrec)
             return xrec, mu, logvar
 
 
@@ -114,6 +115,7 @@ def weights_init(m):
     elif classname == 'Linear':
         nn.init.xavier_uniform_(m.weight.data)
         m.bias.data.fill_(0)
+
 
 def loss_function(x, xrec, mu, logvar):
     mse = ((xrec - x) ** 2).sum()
