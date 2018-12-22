@@ -92,6 +92,7 @@ def train_hierarchical(*,
                        freeze_parent=True,
                        nb_filters=64,
                        nb_draw_layers=1,
+                       num_workers=1,
                        device='cpu',
                        log_interval=1,
                        resume=False):
@@ -116,6 +117,7 @@ def train_hierarchical(*,
         resume=resume,
         log_interval=log_interval,
         lr=lr,
+        num_workers=num_workers,
     )
     if use_parent:
         params.update(dict(
