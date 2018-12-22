@@ -61,7 +61,8 @@ class VAE(nn.Module):
         return chain(self.encoder.parameters(), self.decoder.parameters())
     
     def sample(self, nb_examples=1):
-        z = torch.randn(nb_examples, self.latent_size)
+        device = self.device if hasattr(self, 'device') else 'cpu'
+        z = torch.randn(nb_examples, self.latent_size).to(self.device)
         return self.decode(z)
 
     def decode(self, h):

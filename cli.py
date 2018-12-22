@@ -39,8 +39,6 @@ def train(*,
         dataset = PatchDataset(dataset, patch_size)
     x0, _ = dataset[0]
     nc = x0.size(0)
-    w = x0.size(1)
-    h = x0.size(2)
     dataloader = torch.utils.data.DataLoader(
         dataset,
         batch_size=batch_size,
