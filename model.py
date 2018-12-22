@@ -57,7 +57,7 @@ class VAE(nn.Module):
         self.decoder.apply(weights_init)
 
     def parameters(self):
-        args = (self.encoder.parameters(), self.decoder.parameters())
+        args = (self.encoder.parameters(), self.decoder.parameters(), self.latent.parameters(), self.post_latent.parameters())
         if self.parent:
             args += (self.parent.parameters(),)
         return chain(*args)
