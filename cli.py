@@ -32,6 +32,7 @@ def train(*,
         os.makedirs(folder)
     except Exception:
         pass
+    act = 'sigmid'
     nb_epochs = 3000
     dataset = load_dataset(dataset, split='train')
     if patch_size is not None:
@@ -45,7 +46,6 @@ def train(*,
         shuffle=True,
         num_workers=num_workers,
     )
-    act = 'sigmoid' 
     if resume:
         net = torch.load('{}/net.th'.format(folder))
     else:
@@ -54,7 +54,7 @@ def train(*,
         else:
             parent = None
         net = VAE(latent_size=nz, nc=nc, w=patch_size,
-                  act=act, ndf=nb_filters, parent=parent)
+                  ndf=nb_filters, parent=parent)
     opt = optim.Adam(net.parameters(), lr=lr, betas=(0.5, 0.999))
     net = net.to(device)
     niter = 0
