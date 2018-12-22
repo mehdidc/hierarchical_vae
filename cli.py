@@ -76,6 +76,8 @@ def train(*,
                     x, '{}/real_samples.png'.format(folder), normalize=True)
                 vutils.save_image(
                     f, '{}/fake_samples_epoch_{:03d}.png'.format(folder, epoch), normalize=True)
+                vutils.save_image(
+                    f, '{}/fake_samples_last.png'.format(folder, epoch), normalize=True)
                 torch.save(net, '{}/net.th'.format(folder))
             niter += 1
 
