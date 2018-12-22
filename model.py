@@ -6,8 +6,9 @@ import torch.nn as nn
 
 class VAE(nn.Module):
 
-    def __init__(self, nc=1, ndf=64, latent_size=None, w=64,nb_draw_layers=1, parent=None):
+    def __init__(self, nc=1, ndf=64, latent_size=None, w=64,nb_draw_layers=1, parent=None, act='sigmoid'):
         super().__init__()
+        self.act = act
         if parent is None:
             assert latent_size
         else:
@@ -101,6 +102,8 @@ class VAE(nn.Module):
             x = self.post_latent(h)
             x = x.view((x.size(0),) + self.post_latent_shape) 
             xrec = self.decoder(x)
+            if self.act == 'sigmoid':
+                return n.Sigmoid()(xrec)
             return xrec
     
     def forward(self, input):
