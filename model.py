@@ -58,7 +58,10 @@ class VAE(nn.Module):
         self.decoder.apply(weights_init)
 
     def parameters(self):
-        return chain(self.encoder.parameters(), self.decoder.parameters())
+        args = (self.encoder.parameters(), self.decoder.parameters())
+        if not self.freeze_parent:
+            args += (self.parent.parameters(),)
+        return chain(*args)
     
     def sample(self, nb_examples=1):
         device = next(self.parameters()).device
