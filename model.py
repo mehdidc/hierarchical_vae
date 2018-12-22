@@ -119,7 +119,7 @@ def weights_init(m):
 
 def loss_function(x, xrec, mu, logvar):
     mse = ((xrec - x) ** 2).sum()
-    kld = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum()
+    kld = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1).mean()
     return mse + kld
 
 
