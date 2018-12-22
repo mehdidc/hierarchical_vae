@@ -13,7 +13,6 @@ class VAE(nn.Module):
         else:
             latent_size = parent.latent_size * 4 * nb_draw_layers
         self.latent_size = latent_size
-        self.act = act
         self.ndf = ndf
         self.parent = parent
 
