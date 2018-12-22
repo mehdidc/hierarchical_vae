@@ -59,20 +59,16 @@ class VAE(nn.Module):
 
     def parameters(self):
         return chain(self.encoder.parameters(), self.decoder.parameters())
+    
+    def sample(self, nb_examples=1):
+        z = torch.randn(nb_examples, self.latent_size)
+        return self.decode(z)
 
-    def forward(self, input):
-        x = self.encoder(input)
-        pre_latent_size = x.size()
-        x = x.view(x.size(0), -1)
-        h = self.latent(x)
-        mu, logvar = h[:, 0:self.latent_size], h[:, self.latent_size:]
-        std = torch.exp(0.5*logvar)
-        eps = torch.randn_like(std)
-        h = mu + eps * std
+    def decode(self, h):
         if self.parent:
             parent = self.parent
             nz = parent.latent_size
-            h = h.view(x.size(0), -1)
+            h = h.view(h.size(0), -1)
             # (bs, nz * 4 * self.nb_draw_layers)
             batch_size, nh = h.size()
             h = h.view(batch_size * self.nb_draw_layers * 4, nz)
@@ -97,16 +93,27 @@ class VAE(nn.Module):
             oa = torch.cat((h1, h2), 3)
             ob = torch.cat((h3, h4), 3)
             o = torch.cat((oa, ob), 2)
-            return o, mu, logvar
+            return o
         else:
             x = self.post_latent(h)
-            x = x.view(pre_latent_size)
+            x = x.view((x.size(0),) + self.post_latent_shape) 
             xrec = self.decoder(x)
             if self.act == 'sigmoid':
                 xrec = nn.Sigmoid()(xrec)
             elif self.act == 'tanh':
                 xrec = nn.Tanh()(xrec)
-            return xrec, mu, logvar
+            return xrec
+    
+    def forward(self, input):
+        x = self.encoder(input)
+        x = x.view(x.size(0), -1)
+        h = self.latent(x)
+        mu, logvar = h[:, 0:self.latent_size], h[:, self.latent_size:]
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        h = mu + eps * std
+        xrec = self.decode(h)
+        return xrec, mu, logvar
 
 
 def weights_init(m):
@@ -125,11 +132,3 @@ def loss_function(x, xrec, mu, logvar):
     mse = ((xrec - x) ** 2).sum()
     kld = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1).mean()
     return mse + kld
-
-
-if __name__ == '__main__':
-    parent = VAE(nc=3, w=8, latent_size=10)
-    model = VAE(nc=3, w=16, parent=parent)
-    x = torch.rand(1, 3, 16, 16)
-    erec, mu, logvar = model(x)
-    print(xrec.size())

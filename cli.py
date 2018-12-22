@@ -1,14 +1,15 @@
 import os
 from clize import run
 import shutil
+from skimage.io import imsave
 
 import torch
 import torch.optim as optim
-import torchvision.utils as vutils
 
 from model import VAE
 from model import loss_function
 
+from viz import grid_of_images_default
 from data import load_dataset, PatchDataset
 
 
@@ -70,14 +71,13 @@ def train(*,
             if niter % log_interval == 0:
                 print(f'Epoch: {epoch:05d}/{nb_epochs:05d} iter: {niter:05d} loss: {loss.item()}')
             if niter % 100 == 0:
+                Xsamples = net.sample(nb_examples=100)
                 x = 0.5 * (X + 1) if act == 'tanh' else X
-                f = 0.5 * (Xrec + 1) if act == 'tanh' else Xrec
-                vutils.save_image(
-                    x, '{}/real_samples.png'.format(folder), normalize=True)
-                vutils.save_image(
-                    f, '{}/fake_samples_epoch_{:03d}.png'.format(folder, epoch), normalize=True)
-                vutils.save_image(
-                    f, '{}/fake_samples_last.png'.format(folder, epoch), normalize=True)
+                xrecs = 0.5 * (Xrec + 1) if act == 'tanh' else Xrec
+                xsamples = 0.5 * (Xsamples + 1) if act == 'tanh' else Xsamples
+                imsave(f'{folder}/real_samples.png', grid_of_images_default(x))
+                imsave(f'{folder}/rec_samples.png', grid_of_images_default(xrecs))
+                imsave(f'{folder}/fake_samples.png', grid_of_images_default(xsamples))
                 torch.save(net, '{}/net.th'.format(folder))
             niter += 1
 
