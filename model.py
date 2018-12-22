@@ -118,8 +118,8 @@ def weights_init(m):
 
 
 def loss_function(x, xrec, mu, logvar):
-    mse = ((xrec - x) ** 2).sum()
-    kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    mse = ((xrec - x) ** 2).sum(1).mean()
+    kld = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1).mean()
     return mse + kld
 
 
@@ -127,5 +127,5 @@ if __name__ == '__main__':
     parent = VAE(nc=3, w=8, latent_size=10)
     model = VAE(nc=3, w=16, parent=parent)
     x = torch.rand(1, 3, 16, 16)
-    xrec, mu, logvar = model(x)
+    erec, mu, logvar = model(x)
     print(xrec.size())
