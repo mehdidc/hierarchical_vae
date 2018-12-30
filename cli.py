@@ -119,6 +119,7 @@ def train_hierarchical(*,
         lr=lr,
         num_workers=num_workers,
     )
+    print(use_parent)
     if use_parent:
         params.update(dict(
             parent_model=parent_model,
