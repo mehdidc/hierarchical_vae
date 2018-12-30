@@ -102,7 +102,7 @@ def train_hierarchical(*,
         shutil.rmtree(folder)
     prev_scale = scale // 2
     parent_model = os.path.join(
-        'results', dataset, '{}x{}'.format(prev_scale, prev_scale), 'gen.th')
+        'results', dataset, '{}x{}'.format(prev_scale, prev_scale), 'net.th')
     if not os.path.exists(parent_model):
         use_parent = False
     params = dict(
@@ -119,8 +119,8 @@ def train_hierarchical(*,
         lr=lr,
         num_workers=num_workers,
     )
-    print(use_parent)
     if use_parent:
+        print('Using parent scale')
         params.update(dict(
             parent_model=parent_model,
             freeze_parent=freeze_parent
