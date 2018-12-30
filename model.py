@@ -76,6 +76,7 @@ class VAE(nn.Module):
             h = h.view(h.size(0), -1)
             # (bs, nz * 4 * self.nb_draw_layers)
             batch_size, nh = h.size()
+            h = h.contiguous()
             h = h.view(batch_size * self.nb_draw_layers * 4, nz)
             # (bs * nb_draw_layers * 4, nz)
             h = self.parent.post_latent(h)
