@@ -59,6 +59,7 @@ class VAE(nn.Module):
         self.decoder.apply(weights_init)
 
     def parameters(self):
+        print(self.freeze_parent)
         args = (self.encoder.parameters(), self.decoder.parameters(), self.latent.parameters(), self.post_latent.parameters())
         if self.parent and self.freeze_parent:
             args += (self.parent.parameters(),)
