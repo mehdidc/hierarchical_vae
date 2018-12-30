@@ -8,6 +8,7 @@ class VAE(nn.Module):
 
     def __init__(self, nc=1, ndf=64, latent_size=None, w=64,nb_draw_layers=1, parent=None, act='sigmoid', freeze_parent=True):
         super().__init__()
+        self.freeze_parent = freeze_parent
         self.act = act
         if parent is None:
             assert latent_size
