@@ -54,7 +54,7 @@ def train(*,
         else:
             parent = None
         net = VAE(latent_size=nz, nc=nc, w=patch_size,
-                  ndf=nb_filters, parent=parent, act=act)
+                  ndf=nb_filters, parent=parent, freeze_parent=freeze_parent, act=act)
     opt = optim.Adam(net.parameters(), lr=lr, betas=(0.5, 0.999))
     net = net.to(device)
     niter = 0

@@ -6,7 +6,7 @@ import torch.nn as nn
 
 class VAE(nn.Module):
 
-    def __init__(self, nc=1, ndf=64, latent_size=None, w=64,nb_draw_layers=1, parent=None, act='sigmoid'):
+    def __init__(self, nc=1, ndf=64, latent_size=None, w=64,nb_draw_layers=1, parent=None, act='sigmoid', freeze_parent=True):
         super().__init__()
         self.act = act
         if parent is None:
@@ -59,7 +59,7 @@ class VAE(nn.Module):
 
     def parameters(self):
         args = (self.encoder.parameters(), self.decoder.parameters(), self.latent.parameters(), self.post_latent.parameters())
-        if self.parent:
+        if self.parent and self.freeze_parent:
             args += (self.parent.parameters(),)
         return chain(*args)
     
@@ -135,4 +135,4 @@ def loss_function(x, xrec, mu, logvar):
     xrec = xrec.view(xrec.size(0), -1)
     mse = ((xrec - x) ** 2).sum(1).mean()
     kld = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1).mean()
-    return mse + kld
+    return mse #+ kld
