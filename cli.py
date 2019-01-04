@@ -7,7 +7,6 @@ import torch
 import torch.optim as optim
 
 from model import VAE
-from model import loss_function
 
 from viz import grid_of_images_default
 from data import load_dataset, PatchDataset
@@ -29,6 +28,7 @@ def train(
     num_workers=1,
     nb_filters=64,
     nb_draw_layers=1,
+    objective='ae',
 ):
     try:
         os.makedirs(folder)
@@ -60,6 +60,7 @@ def train(
             parent=parent,
             freeze_parent=freeze_parent,
             act=act,
+            objective=objective,
         )
     opt = optim.Adam(net.parameters(), lr=lr, betas=(0.5, 0.999))
     net = net.to(device)
@@ -69,7 +70,7 @@ def train(
             net.zero_grad()
             X = X.to(device)
             Xrec, mu, logvar = net(X)
-            loss = loss_function(X, Xrec, mu, logvar)
+            loss = net.loss_function(X, Xrec, mu, logvar)
             loss.backward()
             opt.step()
             if niter % log_interval == 0:
@@ -105,6 +106,7 @@ def train_hierarchical(
     num_workers=1,
     device="cpu",
     log_interval=1,
+    objective='ae',
     resume=False,
 ):
 
@@ -130,6 +132,7 @@ def train_hierarchical(
         log_interval=log_interval,
         lr=lr,
         num_workers=num_workers,
+        objective=objective,
     )
     if use_parent:
         print("Using parent scale")

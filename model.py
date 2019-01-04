@@ -15,6 +15,7 @@ class VAE(nn.Module):
         parent=None,
         act="sigmoid",
         freeze_parent=True,
+        objective='ae',
     ):
         super().__init__()
         self.freeze_parent = freeze_parent
@@ -26,6 +27,7 @@ class VAE(nn.Module):
         self.latent_size = latent_size
         self.ndf = ndf
         self.parent = parent
+        self.objective = objective
 
         nb_blocks = int(np.log(w) / np.log(2)) - 3
         nf = ndf
@@ -127,9 +129,19 @@ class VAE(nn.Module):
         mu, logvar = h[:, 0 : self.latent_size], h[:, self.latent_size :]
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        h = mu  # + eps * std
+        h = mu  + eps * std if self.objective == 'vae' else mu
         xrec = self.decode(h)
         return xrec, mu, logvar
+
+    def loss_function(self, x, xrec, mu, logvar):
+        x = x.view(x.size(0), -1)
+        xrec = xrec.view(xrec.size(0), -1)
+        mse = ((xrec - x) ** 2).sum(1).mean()
+        kld = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1).mean()
+        if self.objective == 'ae':
+            return mse
+        elif self.objective == 'vae':
+            return mse + kld
 
 
 def weights_init(m):
@@ -142,11 +154,3 @@ def weights_init(m):
     elif classname == "Linear":
         nn.init.xavier_uniform_(m.weight.data)
         m.bias.data.fill_(0)
-
-
-def loss_function(x, xrec, mu, logvar):
-    x = x.view(x.size(0), -1)
-    xrec = xrec.view(xrec.size(0), -1)
-    mse = ((xrec - x) ** 2).sum(1).mean()
-    kld = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1).mean()
-    return mse  # + kld
