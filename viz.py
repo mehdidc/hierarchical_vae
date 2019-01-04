@@ -30,11 +30,12 @@ def horiz_merge(left, right):
     """
     assert left.shape[0] == right.shape[0]
     assert left.shape[2:] == right.shape[2:]
-    shape = (left.shape[0], left.shape[1] + right.shape[1],) + left.shape[2:]
+    shape = (left.shape[0], left.shape[1] + right.shape[1]) + left.shape[2:]
     im_merge = np.zeros(shape)
-    im_merge[:, 0:left.shape[1]] = left
-    im_merge[:, left.shape[1]:] = right
+    im_merge[:, 0 : left.shape[1]] = left
+    im_merge[:, left.shape[1] :] = right
     return im_merge
+
 
 def vert_merge(top, bottom):
     """
@@ -65,7 +66,9 @@ def vert_merge(top, bottom):
     return im
 
 
-def grid_of_images(M, border=0, bordercolor=[0.0, 0.0, 0.0], shape=None, normalize=False):
+def grid_of_images(
+    M, border=0, bordercolor=[0.0, 0.0, 0.0], shape=None, normalize=False
+):
     """
     Draw a grid of images from M
     The order in the grid which corresponds to the order in M
@@ -114,7 +117,7 @@ def grid_of_images(M, border=0, bordercolor=[0.0, 0.0, 0.0], shape=None, normali
     else:
         M = np.clip(M, 0, 1)
     height, width, color = M[0].shape
-    assert color == 3, 'Nb of color channels are {}'.format(color)
+    assert color == 3, "Nb of color channels are {}".format(color)
     if shape is None:
         n0 = np.int(np.ceil(np.sqrt(numimages)))
         n1 = np.int(np.ceil(np.sqrt(numimages)))
@@ -123,23 +126,39 @@ def grid_of_images(M, border=0, bordercolor=[0.0, 0.0, 0.0], shape=None, normali
         n1 = shape[1]
 
     im = np.array(bordercolor) * np.ones(
-        ((height + border) * n1 + border, (width + border) * n0 + border, 1), dtype='<f8')
+        ((height + border) * n1 + border, (width + border) * n0 + border, 1),
+        dtype="<f8",
+    )
     # shape = (n0, n1)
     # j corresponds to rows in the grid, n1 should correspond to nb of rows
     # i corresponds to columns in the grid, n0 should correspond to nb of cols
-    # M should be such that the first n1 examples correspond to row 1, 
+    # M should be such that the first n1 examples correspond to row 1,
     # next n1 examples correspond to row 2, etc. that is, M first axis
     # can be reshaped to (n1, n0)
     for i in range(n0):
         for j in range(n1):
             if i * n1 + j < numimages:
-                im[j * (height + border) + border:(j + 1) * (height + border) + border,
-                   i * (width + border) + border:(i + 1) * (width + border) + border, :] = np.concatenate((
-                       np.concatenate((M[i * n1 + j, :, :, :],
-                                       bordercolor * np.ones((height, border, 3), dtype=float)), 1),
-                       bordercolor * np.ones((border, width + border, 3), dtype=float)
-                   ), 0)
+                im[
+                    j * (height + border)
+                    + border : (j + 1) * (height + border)
+                    + border,
+                    i * (width + border) + border : (i + 1) * (width + border) + border,
+                    :,
+                ] = np.concatenate(
+                    (
+                        np.concatenate(
+                            (
+                                M[i * n1 + j, :, :, :],
+                                bordercolor * np.ones((height, border, 3), dtype=float),
+                            ),
+                            1,
+                        ),
+                        bordercolor * np.ones((border, width + border, 3), dtype=float),
+                    ),
+                    0,
+                )
     return im
+
 
 grid_of_images_default = partial(grid_of_images, border=1, bordercolor=(0.3, 0, 0))
 
@@ -185,7 +204,7 @@ def reshape_to_images(x, input_shape=None):
             x = x.transpose((0, 2, 3, 1))
             return x
         else:
-            raise ValueError('Cant recognize this shape : {}'.format(x.shape))
+            raise ValueError("Cant recognize this shape : {}".format(x.shape))
     elif len(x.shape) == 4:
         if x.shape[0] in (1, 3):
             x = x.transpose((1, 0, 2, 3))
@@ -193,12 +212,12 @@ def reshape_to_images(x, input_shape=None):
         elif x.shape[1] in (1, 3):
             return x
         elif x.shape[2] in (1, 3):
-             x = x.transpose((3, 2, 0, 1))
-             return x
+            x = x.transpose((3, 2, 0, 1))
+            return x
         elif x.shape[3] in (1, 3):
             x = x.transpose((2, 3, 0, 1))
             return x
         else:
-            raise ValueError('Cant recognize a shape of size : {}'.format(len(x.shape)))
+            raise ValueError("Cant recognize a shape of size : {}".format(len(x.shape)))
     else:
-        raise ValueError('Cant recognize a shape of size : {}'.format(len(x.shape)))
+        raise ValueError("Cant recognize a shape of size : {}".format(len(x.shape)))
